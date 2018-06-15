@@ -149,7 +149,8 @@ public class WalletClient {
   /**
    * Creates a new WalletClient with a random ECKey or no ECKey.
    */
-  public WalletClient(byte[] password) throws CipherException {
+  public WalletClient(byte[] password)
+          throws CipherException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     this.walletFile = Wallet.createStandard(password, ecKey);
     this.address = ecKey.getAddress();
