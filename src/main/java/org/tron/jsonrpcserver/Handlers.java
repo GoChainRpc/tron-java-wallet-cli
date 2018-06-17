@@ -1,5 +1,11 @@
 package org.tron.jsonrpcserver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.google.gson.Gson;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Error;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Request;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Response;
@@ -14,7 +20,10 @@ import org.tron.protos.Protocol;
 import org.tron.walletserver.WalletClient;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @Description
@@ -145,11 +154,15 @@ public class Handlers {
         }
     }
 
+    private static class IgnoreInheritedIntrospector extends JacksonAnnotationIntrospector {
+        @Override
+        public boolean hasIgnoreMarker(final AnnotatedMember m) {
+            return super.hasIgnoreMarker(m);
+        }
+    }
 
     //params [address]
     public static class GetAccountHandler implements RequestHandler {
-
-
         @Override
         public String[] handledRequests() {
             return new String[]{"getAccount"};
@@ -175,12 +188,68 @@ public class Handlers {
                 if (account == null) {
                     return new JSONRPC2Response(new JSONRPC2Error(-32603, "Get Account failed !!!!"), request.getID());
                 } else {
-                    return new JSONRPC2Response(account, request.getID());
+//                    ObjectMapper m = new ObjectMapper();
+//                    m.setAnnotationIntrospector(new IgnoreInheritedIntrospector());
+//                    FilterProvider filterProvider = new SimpleFilterProvider().addFilter("antPathFilter", new AntPathPropertyFilter(includedFieldNames));
+//                    m.setFilterProvider(filterProvider);
+//                    Map<String,Object> props = m.convertValue(account, Map.class);
+                    Map<String, Object> accountMap = new HashMap<>();
+                    accountMap.put("type", account.getType());
+                    accountMap.put("balance", account.getBalance());
+
+                    return new JSONRPC2Response(accountMap, request.getID());
                 }
 
             } else {
                 return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
             }
+        }
+    }
+
+
+    public static class GetTransactionByIdHandler implements RequestHandler {
+
+        @Override
+        public String[] handledRequests() {
+            return new String[]{"getTransactionById"};
+        }
+
+        @Override
+        public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
+            if (request.getMethod().equals("getAccount")) {
+                List params = (List) request.getParams();
+                Object txidObj = params.get(0);
+
+                if (params.size() < 1) {
+                    return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
+                }
+
+                String txid = String.valueOf(txidObj);
+                Optional<Protocol.Transaction> result = WalletClient.getTransactionById(txid);
+
+                if (result.isPresent()) {
+                    Protocol.Transaction transaction = result.get();
+                    return new JSONRPC2Response(transaction, request.getID());
+                } else {
+                    return new JSONRPC2Response(new JSONRPC2Error(-32603, "getTransactionById failed !!!!"), request.getID());
+                }
+            } else {
+                return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
+            }
+        }
+    }
+
+
+    public static class GetBlockHandler implements RequestHandler {
+
+        @Override
+        public String[] handledRequests() {
+            return new String[]{"getBlock"};
+        }
+
+        @Override
+        public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
+            return null;
         }
     }
 }

@@ -16,6 +16,8 @@ public class JsonrpcDispatcher {
         dispatcher.register(new Handlers.RegisterWalletHandler());
         dispatcher.register(new Handlers.SendCoinHandler());
         dispatcher.register(new Handlers.GetAccountHandler());
+        dispatcher.register(new Handlers.GetTransactionByIdHandler());
+        dispatcher.register(new Handlers.GetBlockHandler());
 
         return dispatcher;
     }

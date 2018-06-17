@@ -20,14 +20,19 @@ public class JsonrpcServerTest {
 
         Dispatcher dispatcher = new JsonrpcDispatcher().DispatcherRegister();
 
-        List registerWalletParam = new LinkedList();
-        registerWalletParam.add("123456789");
+//        List registerWalletParam = new LinkedList();
+//        registerWalletParam.add("123456789");
+//        JSONRPC2Request req = new JSONRPC2Request("registerWallet", registerWalletParam,new Long(1));
+//        JSONRPC2Response resp = dispatcher.process(req, null);
+//        System.out.println("Response: \n" + resp);
 
-        JSONRPC2Request req = new JSONRPC2Request("registerWallet", registerWalletParam,new Long(1));
 
-        JSONRPC2Response resp = dispatcher.process(req, null);
+        List getAccountParam = new LinkedList();
+        getAccountParam.add("TMXJTYXkSmo7a388so1Ntc2T5vspQA8BBw");
+        JSONRPC2Request reqGetAccount =  new JSONRPC2Request("getAccount",getAccountParam,new Long(2));
+        JSONRPC2Response respGetAccount = dispatcher.process(reqGetAccount, null);
+        System.out.println("Response: \n" + respGetAccount);
 
-        System.out.println("Response: \n" + resp);
 
     }
 
