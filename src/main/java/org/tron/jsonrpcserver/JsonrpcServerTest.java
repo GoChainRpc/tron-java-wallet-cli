@@ -34,6 +34,18 @@ public class JsonrpcServerTest {
         System.out.println("Response: \n" + respGetAccount);
 
 
+        List getTxParam = new LinkedList();
+        getTxParam.add("57de34ed53d8d19ddffae621bfcf1c93676ca18751275255f72c4f4484b54b23");
+        JSONRPC2Request reqGetTx =  new JSONRPC2Request("getTransactionById",getTxParam,new Long(2));
+        JSONRPC2Response respGetTx = dispatcher.process(reqGetTx, null);
+        System.out.println("Response: \n" + respGetTx);
+
+        List getblockParam = new LinkedList();
+        getblockParam.add("-1");
+        JSONRPC2Request reqGetBlock =  new JSONRPC2Request("getBlock",getblockParam,new Long(3));
+        JSONRPC2Response respGetBlock = dispatcher.process(reqGetBlock, null);
+        System.out.println("Response: \n" + respGetBlock);
+
     }
 
 }

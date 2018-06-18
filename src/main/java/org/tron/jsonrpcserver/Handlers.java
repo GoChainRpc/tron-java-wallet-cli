@@ -11,6 +11,8 @@ import com.thetransactioncompany.jsonrpc2.JSONRPC2Request;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Response;
 import com.thetransactioncompany.jsonrpc2.server.MessageContext;
 import com.thetransactioncompany.jsonrpc2.server.RequestHandler;
+import org.tron.common.crypto.Sha256Hash;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
@@ -108,7 +110,6 @@ public class Handlers {
                     wallet.logout();
                     wallet = null;
                 }
-
 
                 List params = (List) request.getParams();
                 Object password = params.get(0);
@@ -216,7 +217,7 @@ public class Handlers {
 
         @Override
         public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
-            if (request.getMethod().equals("getAccount")) {
+            if (request.getMethod().equals("getTransactionById")) {
                 List params = (List) request.getParams();
                 Object txidObj = params.get(0);
 
@@ -229,7 +230,11 @@ public class Handlers {
 
                 if (result.isPresent()) {
                     Protocol.Transaction transaction = result.get();
-                    return new JSONRPC2Response(transaction, request.getID());
+//                    Gson gson = new Gson();
+//                    Map<String, Object> txMap = new HashMap<>();
+//                    txMap.put("hash", ByteArray.toHexString(Sha256Hash.hash(transaction.toByteArray())));
+//                    txMap.put("txid", ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+                    return new JSONRPC2Response(WalletUtils.buildTransactionMap(transaction), request.getID());
                 } else {
                     return new JSONRPC2Response(new JSONRPC2Error(-32603, "getTransactionById failed !!!!"), request.getID());
                 }
@@ -240,6 +245,7 @@ public class Handlers {
     }
 
 
+    // params [index]  // -1 is latest block
     public static class GetBlockHandler implements RequestHandler {
 
         @Override
@@ -249,7 +255,30 @@ public class Handlers {
 
         @Override
         public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
-            return null;
+            if (request.getMethod().equals("getBlock")) {
+
+                List params = (List) request.getParams();
+                if (params.size() < 1) {
+                    return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
+                }
+
+                long blockNum = -1;
+                try {
+                    blockNum = Long.parseLong(String.valueOf(params.get(0)));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+                Protocol.Block block = WalletClient.getBlock(blockNum);
+//                Gson gson = new Gson();
+//              printTransactionList
+//                Map<String, Object> blockMap = new HashMap<>();
+//                blockMap.put("type", block.getBlockHeader());
+//                blockMap.put("txlist", block.getTransactionsList());
+                return new JSONRPC2Response(WalletUtils.buildBlock(block), request.getID());
+
+            } else {
+                return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
+            }
         }
     }
 }
