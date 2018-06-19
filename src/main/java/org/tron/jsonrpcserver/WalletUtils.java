@@ -86,7 +86,7 @@ public class WalletUtils {
         if (raw.getContractCount() > 0) {
             map.put("contract", buildContractList(raw.getContractList()));
         }
-        map.put("contract", raw.getTimestamp());
+        map.put("timestamp", raw.getTimestamp());
 
         return map;
     }
@@ -125,8 +125,7 @@ public class WalletUtils {
             map.put("block_header", buildBlockHeader(block.getBlockHeader()));
         }
         if (block.getTransactionsCount() > 0) {
-            map.put("block_header",buildTransactions(block.getTransactionsList()));
-
+            map.put("transactions", buildTransactions(block.getTransactionsList()));
         }
         return map;
     }
@@ -134,9 +133,9 @@ public class WalletUtils {
     public static ArrayList<Map> buildTransactions(List<Protocol.Transaction> transactionList) {
         ArrayList<Map> maps = new ArrayList<>();
         for (Protocol.Transaction transaction : transactionList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("transaction", buildTransactionMap(transaction));
-            maps.add(map);
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("transaction", buildTransactionMap(transaction));
+            maps.add(buildTransactionMap(transaction));
         }
         return maps;
     }
@@ -144,8 +143,8 @@ public class WalletUtils {
     public static Map<String, Object> buildBlockHeader(Protocol.BlockHeader blockHeader) {
 
         Map<String, Object> map = new HashMap<>();
-        map.put("raw_data",buildBlockRow(blockHeader.getRawData()));
-        map.put("witness_signature",ByteArray.toHexString(blockHeader.getWitnessSignature().toByteArray()));
+        map.put("raw_data", buildBlockRow(blockHeader.getRawData()));
+        map.put("witness_signature", ByteArray.toHexString(blockHeader.getWitnessSignature().toByteArray()));
 
         return map;
     }
@@ -153,12 +152,12 @@ public class WalletUtils {
     public static Map<String, Object> buildBlockRow(Protocol.BlockHeader.raw raw) {
 
         Map<String, Object> map = new HashMap<>();
-        map.put("timestamp",raw.getTimestamp());
-        map.put("txTrieRoot",ByteArray.toHexString(raw.getTxTrieRoot().toByteArray()));
-        map.put("parentHash",ByteArray.toHexString(raw.getParentHash().toByteArray()));
-        map.put("number",raw.getNumber());
-        map.put("witness_id",raw.getWitnessId());
-        map.put("witness_address",WalletClient.encode58Check(raw.getWitnessAddress().toByteArray()));
+        map.put("timestamp", raw.getTimestamp());
+        map.put("txTrieRoot", ByteArray.toHexString(raw.getTxTrieRoot().toByteArray()));
+        map.put("parentHash", ByteArray.toHexString(raw.getParentHash().toByteArray()));
+        map.put("number", raw.getNumber());
+        map.put("witness_id", raw.getWitnessId());
+        map.put("witness_address", WalletClient.encode58Check(raw.getWitnessAddress().toByteArray()));
 
         return map;
     }

@@ -23,6 +23,7 @@ public class JsonrpcServerTest {
 //        List registerWalletParam = new LinkedList();
 //        registerWalletParam.add("123456789");
 //        JSONRPC2Request req = new JSONRPC2Request("registerWallet", registerWalletParam,new Long(1));
+//        System.out.println("Request: \n" + req);
 //        JSONRPC2Response resp = dispatcher.process(req, null);
 //        System.out.println("Response: \n" + resp);
 
@@ -30,6 +31,7 @@ public class JsonrpcServerTest {
         List getAccountParam = new LinkedList();
         getAccountParam.add("TMXJTYXkSmo7a388so1Ntc2T5vspQA8BBw");
         JSONRPC2Request reqGetAccount =  new JSONRPC2Request("getAccount",getAccountParam,new Long(2));
+        System.out.println("Request: \n" + reqGetAccount);
         JSONRPC2Response respGetAccount = dispatcher.process(reqGetAccount, null);
         System.out.println("Response: \n" + respGetAccount);
 
@@ -37,12 +39,14 @@ public class JsonrpcServerTest {
         List getTxParam = new LinkedList();
         getTxParam.add("57de34ed53d8d19ddffae621bfcf1c93676ca18751275255f72c4f4484b54b23");
         JSONRPC2Request reqGetTx =  new JSONRPC2Request("getTransactionById",getTxParam,new Long(2));
+        System.out.println("Request: \n" + reqGetTx);
         JSONRPC2Response respGetTx = dispatcher.process(reqGetTx, null);
         System.out.println("Response: \n" + respGetTx);
 
         List getblockParam = new LinkedList();
         getblockParam.add("-1");
         JSONRPC2Request reqGetBlock =  new JSONRPC2Request("getBlock",getblockParam,new Long(3));
+        System.out.println("Request: \n" + reqGetBlock);
         JSONRPC2Response respGetBlock = dispatcher.process(reqGetBlock, null);
         System.out.println("Response: \n" + respGetBlock);
 
