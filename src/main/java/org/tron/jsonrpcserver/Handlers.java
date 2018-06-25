@@ -112,7 +112,6 @@ public class Handlers {
                 }
 
                 List params = (List) request.getParams();
-                Object password = params.get(0);
 
                 if (params.size() < 4) {
                     return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
@@ -124,6 +123,8 @@ public class Handlers {
                 byte[] to = WalletClient.decodeFromBase58Check(String.valueOf(params.get(2)));
                 long amount = Long.valueOf(String.valueOf(params.get(3)));
 
+                System.out.println(from + passwd + to + amount);
+
                 WalletFile walletFile = null;
                 try {
                     walletFile = WalletUtils.loadWalletFile(from);
@@ -132,12 +133,12 @@ public class Handlers {
                 }
                 wallet = new WalletClient(walletFile);
 
-                boolean isvalided;
-                try {
-                    isvalided = wallet.checkPassword(passwd);
-                } catch (CipherException e) {
-                    e.printStackTrace();
-                }
+//                boolean isvalided;
+//                try {
+//                    isvalided = wallet.checkPassword(passwd);
+//                } catch (CipherException e) {
+//                    e.printStackTrace();
+//                }
 
                 boolean isSendOk = false;
                 try {

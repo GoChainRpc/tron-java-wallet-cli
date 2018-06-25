@@ -46,7 +46,7 @@ public class JsonRPCServer {
             // Create a new JSON-RPC 2.0 request dispatcher
             this.dispatcher = new Dispatcher();
 
-            // Register the "echo", "getDate" and "getTime" handlers with it
+            // Register the handlers with it
             dispatcher.register(new Handlers.RegisterWalletHandler());
             dispatcher.register(new Handlers.SendCoinHandler());
             dispatcher.register(new Handlers.GetAccountHandler());
@@ -94,7 +94,7 @@ public class JsonRPCServer {
                 JSONRPC2Request request = JSONRPC2Request
                         .parse(body.toString());
                 JSONRPC2Response resp = dispatcher.process(request, null);
-                System.out.println(resp.toJSONString());
+//                System.out.println(resp.toJSONString());
                 // send response
                 out.write("HTTP/1.1 200 OK\r\n");
                 out.write("Content-Type: application/json\r\n");

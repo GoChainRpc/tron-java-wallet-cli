@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static org.tron.walletserver.WalletClient.createTransferContract;
+
 /**
  * @Description
  * @Author michael2008s
