@@ -978,4 +978,35 @@ public class WalletClient {
   public static Optional<BlockList> getBlockByLatestNum(long num) {
     return rpcCli.getBlockByLatestNum(num);
   }
+
+  public Transaction sendCoinReturnTx(byte[] to, long amount) {
+    byte[] owner = getAddress();
+    Contract.TransferContract contract = createTransferContract(to, owner, amount);
+    Transaction transaction = rpcCli.createTransaction(contract);
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      return null;
+    }
+    return transaction;
+  }
+
+  public boolean sendCoinSignAndBroadcast(Transaction transaction,byte[] pwd) throws IOException, CipherException, CancelException {
+      transaction = signTransactionWithPwd(transaction, pwd);
+      return rpcCli.broadcastTransaction(transaction);
+    }
+
+  private Transaction signTransactionWithPwd(Transaction transaction, byte[] passwd)
+          throws CipherException, IOException, CancelException {
+    transaction = TransactionUtils.setTimestamp(transaction);
+    System.out.println("Your transaction details are as follows, please confirm.");
+    System.out.println(Utils.printTransaction(transaction));
+
+//    char[] password = Utils.inputPassword(false);
+//    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
+//    org.tron.keystore.StringUtils.clear(password);
+    System.out.println(
+            "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+    transaction = TransactionUtils.sign(transaction, this.getEcKey(passwd));
+    org.tron.keystore.StringUtils.clear(passwd);
+    return transaction;
+  }
 }

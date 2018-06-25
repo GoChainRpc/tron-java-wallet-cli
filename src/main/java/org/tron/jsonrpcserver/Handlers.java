@@ -140,15 +140,18 @@ public class Handlers {
 //                    e.printStackTrace();
 //                }
 
+
+                Protocol.Transaction transaction = wallet.sendCoinReturnTx(to, amount);
+                String txid = ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
                 boolean isSendOk = false;
                 try {
-                    isSendOk = wallet.sendCoin(to, amount);
+                    isSendOk = wallet.sendCoinSignAndBroadcast(transaction, passwd);
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    wallet.logout();
                 }
-
-                wallet.logout();
-                return new JSONRPC2Response(isSendOk, request.getID());
+                return new JSONRPC2Response(txid, request.getID());
 
             } else {
                 return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
