@@ -32,6 +32,7 @@ import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.walletserver.WalletClient;
 
 public class TestClient {
@@ -824,6 +825,23 @@ public class TestClient {
     }
   }
 
+  private void getTransactionInfoById(String[] parameters) {
+    String txid = "";
+    if (parameters == null || parameters.length != 1) {
+      System.out.println("getTransactionInfoById needs 1 parameter, transaction id");
+      return;
+    } else {
+      txid = parameters[0];
+    }
+    Optional<TransactionInfo> result = WalletClient.getTransactionInfoById(txid);
+    if (result.isPresent()) {
+      TransactionInfo transactionInfo = result.get();
+      logger.info(Utils.printTransactionInfo(transactionInfo));
+    } else {
+      logger.info("getTransactionInfoById " + " failed !!");
+    }
+  }
+
   private void getTransactionsFromThis(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("GetTransactionsFromThis needs 3 parameters, use the following syntax: ");
@@ -995,6 +1013,7 @@ public class TestClient {
     //   System.out.println("GetTransactionsByTimestamp");
     //   System.out.println("GetTransactionsByTimestampCount");
     System.out.println("GetTransactionById");
+    System.out.println("getTransactionInfoById");
     System.out.println("GetTransactionsFromThis");
     //   System.out.println("GetTransactionsFromThisCount");
     System.out.println("GetTransactionsToThis");
@@ -1214,6 +1233,10 @@ public class TestClient {
 //          }
           case "gettransactionbyid": {
             getTransactionById(parameters);
+            break;
+          }
+          case "gettransactioninfobyid": {
+            getTransactionInfoById(parameters);
             break;
           }
           case "getblockbyid": {
