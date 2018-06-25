@@ -59,6 +59,14 @@ public class WalletUtils {
         return null;
     }
 
+    public static Map buildTransactionInfoMap(Protocol.TransactionInfo transactionInfo) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("txid", ByteArray.toHexString(transactionInfo.getId().toByteArray()));
+        map.put("fee", transactionInfo.getFee());
+        map.put("blockNumber", transactionInfo.getBlockNumber());
+        map.put("blockTimeStamp", transactionInfo.getBlockTimeStamp());
+        return map;
+    }
 
     public static Map buildTransactionMap(Protocol.Transaction transaction) {
 

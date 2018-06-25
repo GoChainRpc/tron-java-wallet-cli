@@ -1,11 +1,5 @@
 package org.tron.jsonrpcserver;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.google.gson.Gson;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Error;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Request;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Response;
@@ -13,8 +7,6 @@ import com.thetransactioncompany.jsonrpc2.server.MessageContext;
 import com.thetransactioncompany.jsonrpc2.server.RequestHandler;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Utils;
-import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.keystore.StringUtils;
 import org.tron.keystore.WalletFile;
@@ -50,11 +42,11 @@ public class Handlers {
 
             if (request.getMethod().equals("registerWallet")) {
                 List params = (List) request.getParams();
-                Object password = params.get(0);
 
                 if (params.size() < 1) {
                     return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
                 }
+                Object password = params.get(0);
 
                 char[] passwordCharArray = String.valueOf(password).toCharArray();
 
@@ -133,14 +125,6 @@ public class Handlers {
                 }
                 wallet = new WalletClient(walletFile);
 
-//                boolean isvalided;
-//                try {
-//                    isvalided = wallet.checkPassword(passwd);
-//                } catch (CipherException e) {
-//                    e.printStackTrace();
-//                }
-
-
                 Protocol.Transaction transaction = wallet.sendCoinReturnTx(to, amount);
                 String txid = ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
                 boolean isSendOk = false;
@@ -151,18 +135,15 @@ public class Handlers {
                 } finally {
                     wallet.logout();
                 }
-                return new JSONRPC2Response(txid, request.getID());
+                if (isSendOk) {
+                    return new JSONRPC2Response(txid, request.getID());
+                } else {
+                    return new JSONRPC2Response(new JSONRPC2Error(-32603, "broadcast not ok!"), request.getID());
+                }
 
             } else {
                 return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
             }
-        }
-    }
-
-    private static class IgnoreInheritedIntrospector extends JacksonAnnotationIntrospector {
-        @Override
-        public boolean hasIgnoreMarker(final AnnotatedMember m) {
-            return super.hasIgnoreMarker(m);
         }
     }
 
@@ -177,11 +158,11 @@ public class Handlers {
         public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
             if (request.getMethod().equals("getAccount")) {
                 List params = (List) request.getParams();
-                Object addressObj = params.get(0);
 
                 if (params.size() < 1) {
                     return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
                 }
+                Object addressObj = params.get(0);
 
                 String address = String.valueOf(addressObj);
                 byte[] addressBytes = WalletClient.decodeFromBase58Check(address);
@@ -223,11 +204,12 @@ public class Handlers {
         public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
             if (request.getMethod().equals("getTransactionById")) {
                 List params = (List) request.getParams();
-                Object txidObj = params.get(0);
 
                 if (params.size() < 1) {
                     return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
                 }
+                Object txidObj = params.get(0);
+
 
                 String txid = String.valueOf(txidObj);
                 Optional<Protocol.Transaction> result = WalletClient.getTransactionById(txid);
@@ -241,6 +223,40 @@ public class Handlers {
                     return new JSONRPC2Response(WalletUtils.buildTransactionMap(transaction), request.getID());
                 } else {
                     return new JSONRPC2Response(new JSONRPC2Error(-32603, "getTransactionById failed !!!!"), request.getID());
+                }
+            } else {
+                return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
+            }
+        }
+    }
+
+
+    public static class GetTransactionInfoByIdHandler implements RequestHandler {
+
+        @Override
+        public String[] handledRequests() {
+            return new String[]{"getTransactionInfoById"};
+        }
+
+        @Override
+        public JSONRPC2Response process(JSONRPC2Request request, MessageContext requestCtx) {
+            if (request.getMethod().equals("getTransactionInfoById")) {
+                List params = (List) request.getParams();
+
+                if (params.size() < 1) {
+                    return new JSONRPC2Response(JSONRPC2Error.INVALID_PARAMS, request.getID());
+                }
+
+                Object txidObj = params.get(0);
+
+                String txid = String.valueOf(txidObj);
+                Optional<Protocol.TransactionInfo> result = WalletClient.getTransactionInfoById(txid);
+
+                if (result.isPresent()) {
+                    Protocol.TransactionInfo transactionInfo = result.get();
+                    return new JSONRPC2Response(WalletUtils.buildTransactionInfoMap(transactionInfo), request.getID());
+                } else {
+                    return new JSONRPC2Response(new JSONRPC2Error(-32603, "getTransactionInfoById failed !!!!"), request.getID());
                 }
             } else {
                 return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, request.getID());
