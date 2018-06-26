@@ -201,6 +201,20 @@ public class GrpcClient {
     }
   }
 
+  public Block getBlockSolidity(long blockNum) {
+    if (blockNum < 0) {
+      if (blockingStubSolidity != null) {
+        return blockingStubSolidity.getNowBlock(EmptyMessage.newBuilder().build());
+      }
+    }
+    NumberMessage.Builder builder = NumberMessage.newBuilder();
+    builder.setNum(blockNum);
+    if (blockingStubSolidity != null) {
+      return blockingStubSolidity.getBlockByNum(builder.build());
+    }
+    return null;
+  }
+
 //  public Optional<AccountList> listAccounts() {
 //    AccountList accountList = blockingStubSolidity
 //        .listAccounts(EmptyMessage.newBuilder().build());

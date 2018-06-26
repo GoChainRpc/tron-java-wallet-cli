@@ -529,6 +529,10 @@ public class WalletClient {
     return rpcCli.getBlock(blockNum);
   }
 
+  public static Block getBlockSolidity(long blockNum){
+    return rpcCli.getBlockSolidity(blockNum);
+  }
+
   public boolean voteWitness(HashMap<String, String> witness)
       throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
@@ -986,17 +990,17 @@ public class WalletClient {
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       return null;
     }
+    transaction = TransactionUtils.setTimestamp(transaction);
     return transaction;
   }
 
   public boolean sendCoinSignAndBroadcast(Transaction transaction,byte[] pwd) throws IOException, CipherException, CancelException {
-      transaction = signTransactionWithPwd(transaction, pwd);
-      return rpcCli.broadcastTransaction(transaction);
-    }
+    transaction = signTransactionWithPwd(transaction, pwd);
+    return rpcCli.broadcastTransaction(transaction);
+  }
 
   private Transaction signTransactionWithPwd(Transaction transaction, byte[] passwd)
           throws CipherException, IOException, CancelException {
-    transaction = TransactionUtils.setTimestamp(transaction);
     System.out.println("Your transaction details are as follows, please confirm.");
     System.out.println(Utils.printTransaction(transaction));
 

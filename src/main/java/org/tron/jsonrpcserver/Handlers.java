@@ -126,7 +126,7 @@ public class Handlers {
                 wallet = new WalletClient(walletFile);
 
                 Protocol.Transaction transaction = wallet.sendCoinReturnTx(to, amount);
-                String txid = ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+                String txid =  ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
                 boolean isSendOk = false;
                 try {
                     isSendOk = wallet.sendCoinSignAndBroadcast(transaction, passwd);
@@ -288,7 +288,11 @@ public class Handlers {
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
-                Protocol.Block block = WalletClient.getBlock(blockNum);
+                Protocol.Block block = WalletClient.getBlockSolidity(blockNum);
+
+                if (block == null) {
+                    return new JSONRPC2Response(new JSONRPC2Error(-32603, "connect solidity error!"), request.getID());
+                }
 //                Gson gson = new Gson();
 //              printTransactionList
 //                Map<String, Object> blockMap = new HashMap<>();
