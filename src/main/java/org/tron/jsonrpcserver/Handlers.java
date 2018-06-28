@@ -122,6 +122,7 @@ public class Handlers {
                     walletFile = WalletUtils.loadWalletFile(from);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return new JSONRPC2Response(new JSONRPC2Error(-32603, "Wallet open failed.Please check keystore file."), request.getID());
                 }
                 wallet = new WalletClient(walletFile);
 
